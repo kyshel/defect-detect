@@ -22,6 +22,7 @@ The repo aims to record logs for competition tile defect detect
 
 # done
 - extract bbox ROI from origin image
+  ![image](https://user-images.githubusercontent.com/11898075/104823156-fc7d6080-5882-11eb-8096-018be35c9f2d.png)
 - locate the coordinates of defect
 
 
