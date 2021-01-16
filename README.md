@@ -16,11 +16,12 @@ The repo aims to record logs for competition tile defect detect
 
 # todo
 - filter defect in traditional way
-- extract bbox ROI from origin image
+
 
 
 
 # done
+- extract bbox ROI from origin image
 - locate the coordinates of defect
 
 
