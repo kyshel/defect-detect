@@ -279,19 +279,34 @@ DEBUG_IMSHOW = 1
 
 
 def see(img):
+    see1(img)
+
+
+def see0():
+    see1(img)
+    see2(img)
+    see3(img)
+
+# PIL call sys
+def see1(img):
+    print('>>> see1, or see, PIL call sys ')
     img2 = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     im_pil = Image.fromarray(img2)
     im_pil.show()
 
-
+# matploit
 def see2(img):
-    plt.imshow(img)
+    print('>>> see2 ,matploit ')
+    RGB_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    plt.imshow(RGB_img)
     plt.xticks([]), plt.yticks([])
     plt.show()
 
+# opencv
 def see3(img):
+    print('>>> see3 ,opencv ')
     cv2.imshow( get_date() , img)
-    return
+
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 

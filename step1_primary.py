@@ -114,7 +114,7 @@ def main():
     json_path = "ds/step1/train_annos.json"
     df = pd.read_json(json_path)
 
-    # temp empty
+    # clean output dir
     for item in os.listdir(OUT_DIR):
         if item.endswith(".jpg"):
             os.remove(os.path.join(OUT_DIR, item))
