@@ -39,7 +39,7 @@ def main():
     cnt = 0
     txt_dict = {}
     for index, row in df_merged.iterrows():
-        txt_filename = row['name']
+        txt_filename = os.path.splitext( row['name'])[0]
         line_list=[]
         for i in range(len(row['image_width'])):
             label_class = row['category'][i]
