@@ -2,73 +2,70 @@
 # -*- coding: utf-8 -*-
 from step1_lib1 import *
 
-
 img_path = r'D:\ml\p8\ds\step1\sample10\hang\197_1_t20201119084916148_CAM1.jpg'
-img = cv2.imread(img_path)
-
-
 
 #   ---------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import cv2 as cv
 
+img_origin = cv.imread(img_path)
+img_gray = cv2.cvtColor(img_origin, cv2.COLOR_BGR2GRAY)
 
-
-img = cv.imread(img_path,0)
-
-
+img = img_gray
 img = cv.medianBlur(img,5)
 
+
 ret,th1 = cv.threshold(img,127,255,cv.THRESH_BINARY)
-th2 = cv.adaptiveThreshold(img,255,cv.ADAPTIVE_THRESH_MEAN_C,\
-            cv.THRESH_BINARY,11,2)
 
-th3 = cv.adaptiveThreshold(img,255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,\
-            cv.THRESH_BINARY,11,2)
-
-
-titles = ['Original Image','BINARY','BINARY_INV','TRUNC','TOZERO','TOZERO_INV']
-images = [img, th1, th2, th3]
-for i in range(4):
-    plt.subplot(2,2,i+1),plt.imshow(images[i],'gray')
-    plt.title(titles[i])
-    plt.xticks([]),plt.yticks([])
-plt.show()
+# Otsu's thresholding
+ret2,th2 = cv.threshold(img,0,255,cv.THRESH_BINARY+cv.THRESH_OTSU)
+# Otsu's thresholding after Gaussian filtering
+# blur = cv.GaussianBlur(img,(5,5),0)
+# ret3,th3 = cv.threshold(blur,0,255,cv.THRESH_BINARY+cv.THRESH_OTSU)
+thresh = th2
 
 
+
+
+
+
+
+contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_TC89_KCOS )
+# contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_TC89_L1 )
+# contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE )
+# contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_NONE  )
+
+print(contours)
+print(len(contours[0]))
+
+
+img = np.zeros((img.shape[0],img.shape[1],3), np.uint8)
+img[:] = (255, 255, 255)
+cv2.rectangle(img, (0, 0, img.shape[1],img.shape[0]), GREEN, 100)
+cv.drawContours(img, contours, -1, RED, 1)
+
+
+
+
+
+
+
+rect = cv2.minAreaRect(contours[0])
+box = cv.boxPoints(rect)
+box = np.int0(box)
+cv.drawContours(img,[box],0,YELLOW,2)
+
+print(rect)
+
+
+
+
+see(img)
 
 exit()
-thresh = th1
+
+
+
 
 
 # ret,thresh = cv.threshold(img,127,255,0)

@@ -7,31 +7,80 @@ from step1_lib1 import *
 
 image = cv2.imread(r'D:\ml\p8\ds\step1\sample10\hang\197_1_t20201119084916148_CAM1.jpg')
 # ----------------
-import cv2 as cv
-import numpy as np
 
-from matplotlib import pyplot as plt
-image = cv2.imread(r'D:\ml\p8\ds\step1\sample10\hang\197_1_t20201119084916148_CAM1.jpg',0)
-img = image
-# global thresholding
-ret1,th1 = cv.threshold(img,127,255,cv.THRESH_BINARY)
-# Otsu's thresholding
-ret2,th2 = cv.threshold(img,0,255,cv.THRESH_BINARY+cv.THRESH_OTSU)
-# Otsu's thresholding after Gaussian filtering
-blur = cv.GaussianBlur(img,(5,5),0)
-ret3,th3 = cv.threshold(blur,0,255,cv.THRESH_BINARY+cv.THRESH_OTSU)
-# plot all the images and their histograms
-images = [img, 0, th1,
-          img, 0, th2,
-          blur, 0, th3]
-titles = ['Original Noisy Image','Histogram','Global Thresholding (v=127)',
-          'Original Noisy Image','Histogram',"Otsu's Thresholding",
-          'Gaussian filtered Image','Histogram',"Otsu's Thresholding"]
-for i in range(3):
-    plt.subplot(3,3,i*3+1),plt.imshow(images[i*3],'gray')
-    plt.title(titles[i*3]), plt.xticks([]), plt.yticks([])
-    plt.subplot(3,3,i*3+2),plt.hist(images[i*3].ravel(),256)
-    plt.title(titles[i*3+1]), plt.xticks([]), plt.yticks([])
-    plt.subplot(3,3,i*3+3),plt.imshow(images[i*3+2],'gray')
-    plt.title(titles[i*3+2]), plt.xticks([]), plt.yticks([])
-plt.show()
+
+
+
+def convert(shape, bbox):
+    dw = 1./(shape[0])
+    dh = 1./(shape[1])
+    x = (bbox[0] + bbox[2])/2.0 - 1
+    y = (bbox[1] + bbox[3])/2.0 - 1
+    w = bbox[2] - bbox[0]
+    h = bbox[3] - bbox[1]
+    x = x*dw
+    w = w*dw
+    y = y*dh
+    h = h*dh
+    return (x,y,w,h)
+
+def main():
+    train10_dir = "ds/step1/train10/"
+    json_path = "ds/step1/train_annos.json"
+    LABEL_PATH = 'tdd\\labels\\train2017\\'
+    df = pd.read_json(json_path)
+    df_merged = df.groupby('name', as_index=False).agg(lambda x: x.tolist())
+    #
+    # print(df_merged)
+
+
+
+
+    cnt = 0
+    txt_dict = {}
+    for index, row in df_merged.iterrows():
+        txt_filename = row['name']
+        line_list=[]
+        for i in range(len(row['image_width'])):
+            label_class = row['category'][i]
+            shape = [row['image_width'][i],row['image_height'][i]]
+            bbox = row['bbox'][i]
+            x,y,w,h = convert(shape,bbox)
+            line = [label_class,x,y,w,h]
+            line_list += [line]
+        txt_dict[txt_filename]=line_list
+
+    print(json.dumps(txt_dict, indent=4, sort_keys=True))
+
+
+    # txt_dict = {'1.jpg': [[class,x,y,w,h],[class,x,w,y,h]],'2.jpg':[...]}
+    for filename,line_list in txt_dict.items():
+        with open(LABEL_PATH+filename + ".txt", "w") as text_file:
+            for line in line_list:
+                text_file.write("{} {} {} {} {}\n".format(line[0],line[1],line[2],line[3],line[4]))
+
+
+    exit()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    main()
+
+
+

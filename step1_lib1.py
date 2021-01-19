@@ -11,7 +11,7 @@ import math
 import os
 from functools import partial
 from var_dump import var_dump
-
+import json
 import matplotlib.pyplot as plt
 
 import pandas as pd
@@ -43,6 +43,8 @@ BLUE = [255, 0, 0]
 YELLOW = [0, 243, 255]
 PINK = [189, 0, 255]
 PURPLE = [255, 0, 205]
+
+RGB_RED=[255, 0, 0]
 
 
 def ins(v):
