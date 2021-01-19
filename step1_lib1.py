@@ -21,7 +21,7 @@ import math
 pd.set_option('display.max_columns', 10)
 pd.set_option('display.width', 300)
 
-OUT_DIR = 'ds/step1/output/'
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,6 +45,10 @@ PINK = [189, 0, 255]
 PURPLE = [255, 0, 205]
 
 RGB_RED=[255, 0, 0]
+
+CROP_SIZE = 512
+OUT_DIR = 'ds/step1/output/'
+
 
 
 def ins(v):
@@ -85,6 +89,46 @@ def random_color():
     color = np.random.randint(0, 255, size=(3,))
     return int(color[0]), int(color[1]), int(color[2])
 
+def flaw(index):
+    flaw_info ={
+        0:{
+            'name':'0 background',
+            'name_cn':'0背景',
+            'color':[255, 165, 0],
+        },
+        1: {
+            'name': '1 edge weird',
+            'name_cn': '1边异常',
+            'color': GREEN,
+        },
+        2: {
+            'name': '2 corner weird',
+            'name_cn': '2角异常',
+            'color': BLUE,
+        },
+        3: {
+            'name': '3 white spot',
+            'name_cn': '3白色点瑕疵',
+            'color': RED,
+        },
+        4: {
+            'name': '4 light block',
+            'name_cn': '4浅色块瑕疵',
+            'color': YELLOW,
+        },
+        5: {
+            'name': '5 dark block',
+            'name_cn': '5深色点块瑕疵',
+            'color': PINK,
+        },
+        6: {
+            'name': '6 halo',
+            'name_cn': '6光圈瑕疵',
+            'color': PURPLE,
+        },
+    }
+    return flaw_info[index]
+
 
 def flaw_name(num):
     map_type = {
@@ -110,10 +154,10 @@ def flaw_name(num):
 
 def flaw_color(num):
     map_color = {
-        1: [255, 0, 0],
         0: [255, 165, 0],
+        1: GREEN,
         2: [255, 255, 0],
-        3: [0, 255, 0],
+        3: RED,
         4: [0, 0, 255],
         5: [75, 0, 130],
         6: [238, 130, 238]
@@ -344,3 +388,34 @@ def get_contours(region):
     contours = cv2.findContours(opened, mode=cv2.RETR_LIST, method=cv2.CHAIN_APPROX_SIMPLE)[-2]
 
     return contours
+
+
+
+def get_img_list_from_disk(dir_name):
+    crops = []
+    for filename in os.listdir(dir_name):
+        img = cv2.imread(dir_name + filename)
+        crops += [img]
+    return crops
+
+# convert bbox to yolo txt
+def convert(shape, bbox):
+    dw = 1./(shape[0])
+    dh = 1./(shape[1])
+    x = (bbox[0] + bbox[2])/2.0 - 1
+    y = (bbox[1] + bbox[3])/2.0 - 1
+    w = bbox[2] - bbox[0]
+    h = bbox[3] - bbox[1]
+    x = x*dw
+    w = w*dw
+    y = y*dh
+    h = h*dh
+    return (x,y,w,h)
+
+def write_imgs_to_disk(img_list,dir_name):
+    for i, x in enumerate(img_list):
+        cv2.imwrite(dir_name + str(i) + ".jpg", x)
+    return 1
+
+
+
