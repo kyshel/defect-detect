@@ -118,35 +118,34 @@ def get_crop_objs_from_image(img,img_labels,crop_size = CROP_SIZE):
         if base_y + crop_size > img_height: crop_size_y = img_height - base_y
 
         crop = img[base_y:base_y+crop_size_y, base_x:base_x+crop_size_x]
-        crop_bbox=[bbox[0]-base_x,bbox[1]-base_y,bbox[2]-base_x,bbox[3]-base_y]
+        crop_bbox=[bbox[0]-base_x+1,bbox[1]-base_y+1,bbox[2]-base_x+1,bbox[3]-base_y+1]
+        # crop_bbox=[bbox[0]-base_x,bbox[1]-base_y,bbox[2]-base_x,bbox[3]-base_y]
 
 
+        img_name_witout_ext = os.path.splitext(row['name'])[0]
         x,y,w,h=convert([crop_size_x,crop_size_y],crop_bbox)
         filename = '{0}__{1}__{2}__{3}__{4}__{5}__{6}__{7}__{8}__{9}.jpg'.format(
-            row['name'], base_x, base_y, crop_size_x, crop_size_y, label_index, x, y, w, h
+            img_name_witout_ext, base_x, base_y, crop_size_x, crop_size_y, label_index, x, y, w, h
         )  # alternate '__'.join(x,y,w,h)
 
 
         # draw some graph
-        x = int(crop_bbox[0])
-        y = int(crop_bbox[1])
-        w = int(crop_bbox[2] - crop_bbox[0])
-        h = int(crop_bbox[3] - crop_bbox[1])
-
-        draw_cross(crop, (x, y))
-        color = flaw(label_index)['color']
-        cv2.rectangle(crop, (x, y, w, h), color, 1)
-        cv2.rectangle(crop, (0, 0,
-                            crop_size_x, crop_size_y), color, 10)
-        text = "{},x{},y{},w{},h{}".format(flaw(label_index)['name'], x, y, w, h)
-        cv2.putText(crop, text, (x - 40, y - 10),cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+        # x = int(crop_bbox[0])
+        # y = int(crop_bbox[1])
+        # w = int(crop_bbox[2] - crop_bbox[0])
+        # h = int(crop_bbox[3] - crop_bbox[1])
+        #
+        # draw_cross(crop, (x, y))
+        # color = flaw(label_index)['color']
+        # cv2.rectangle(crop, (x, y, w, h), color, 1)
+        # cv2.rectangle(crop, (0, 0,
+        #                     crop_size_x, crop_size_y), color, 10)
+        # text = "{},x{},y{},w{},h{}".format(flaw(label_index)['name'], x, y, w, h)
+        # cv2.putText(crop, text, (x - 40, y - 10),cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
         # build flaw_crop
         crop_obj = {'filename': filename, 'data': crop}
 
-        print('crop_obj>>>')
-        print(crop_obj)
-        print('crop_obj<<<')
 
         crop_objs += [crop_obj]
 
@@ -166,10 +165,6 @@ def get_crop_objs_from_train(train_dir, annotation_json_path):
             img = cv2.imread(file_full_path)
             img_labels = df[df.name == filename]
             crop_objs_part = get_crop_objs_from_image(img,img_labels)
-
-            print('crop_objs_part>>>')
-            print(crop_objs_part)
-            print('crop_objs_part<<<')
 
             crop_objs += crop_objs_part
 
