@@ -4,6 +4,27 @@ from PIL import Image
 
 
 
+
+
+
+
+
+from time import sleep
+from tqdm import tqdm
+pbar = tqdm(total=100)
+for i in range(10):
+    sleep(0.1)
+    pbar.update(10)
+pbar.close()
+
+exit()
+import os
+a = os.path.splitext( '197_10_t20201119085402164_CAM1.jpg__2125__736__512__512__5__0.5019335937499996__0.50095703125__0.017578125__0.015625.jpg')
+
+print(a)
+
+exit()
+
 import torch
 # x = torch.rand(5, 3)
 # print(x)
