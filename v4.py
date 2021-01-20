@@ -72,7 +72,7 @@ def get_crop_objs_from_train(train_dir, annotation_json_path):
 
     max_step = 100
     step = 0
-    pbar = tqdm(total=max_step)
+    pbar = tqdm(total=max_step,position=0, leave=True)
 
     cnt = 0
     crop_objs = []
@@ -105,12 +105,7 @@ def get_crop_objs_from_train(train_dir, annotation_json_path):
 
 
 def write_crops_to_disk(crop_objs, dir_name):
-    print('>>>write_crops_to_disk...')
-
-    # clean output dir
-    # for item in os.listdir(dir_name):
-    #     if item.endswith(".jpg"):
-    #         os.remove(os.path.join(dir_name, item))
+    print('>>>write_crop_objs_to_disk...')
 
     for crop_obj in crop_objs:
         filename = crop_obj['filename']

@@ -7,11 +7,11 @@
 
 
 # download command/URL (optional)
-download: https://github.com/kyshel/tile-defect-detect/files/5840502/ds_tile_v4_crops241.zip
+download: https://github.com/kyshel/tile-defect-detect/releases/download/v4.1/ds_tdd_v4_crops_all_train.zip
 
 # train and val data as 1) directory: path/images/, 2) file: path/images.txt, or 3) list: [path1/images/, path2/images/]
-train: ../ds_tile_v4_crops241/images/train/  # 128 images
-val: ../ds_tile_v4_crops241/images/train/  # 128 images
+train: ../ds_tdd_v4_crops_all_train/images/train/  # 128 images
+val: ../ds_tdd_v4_crops_all_train/images/val/  # 128 images
 
 # number of classes
 nc: 7

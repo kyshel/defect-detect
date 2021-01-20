@@ -45,8 +45,12 @@ RGB_RED=[255, 0, 0]
 
 CROP_SIZE = 512
 OUT_DIR = 'ds/step1/output/'
+
+# same as yolo train dir
 CROPS_DIR = 'ds/v4/images/train/'
 
+# same as yolo label dir
+TXT_DIR = 'ds/v4/labels/train/'
 
 
 
