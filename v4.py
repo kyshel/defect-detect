@@ -4,8 +4,7 @@ from v4_funcs import *
 
 
 def work_flow():
-    crops_train = get_crops_from_train()
-    write_crops_to_disk(crops_train, CROPS_TRAIN_PATH)
+    get_crops_from_train()
 
     crops_val = get_crops_from_val()
     result = get_result(crops_val)
@@ -72,7 +71,7 @@ def get_crop_objs_from_train(train_dir, annotation_json_path):
 
     max_step = 100
     step = 0
-    pbar = tqdm(total=max_step,position=0, leave=True)
+    pbar = tqdm(total=max_step, position=0, leave=True)
 
     cnt = 0
     crop_objs = []
@@ -89,16 +88,18 @@ def get_crop_objs_from_train(train_dir, annotation_json_path):
             # break pieces to prevent mem BOOM
             pbar.update(1)
             step += 1
-            cnt +=1
+            cnt += 1
             # print('Counting objs in crop_objs: ' + str(cnt))
             if step == max_step:
                 print('>>>max_step=' + str(max_step) + ' reached! ')
-                print('>>>finished cnt:'+str(cnt))
+                print('>>>finished cnt:' + str(cnt))
                 write_crops_to_disk(crop_objs, CROPS_DIR)
                 crop_objs = []
                 step = 0
                 pbar.reset()
 
+    # the last
+    write_crops_to_disk(crop_objs, CROPS_DIR)
     pbar.close()
 
     return crop_objs
@@ -115,7 +116,101 @@ def write_crops_to_disk(crop_objs, dir_name):
     return 1
 
 
-def get_crops_from_val():
+def write_tiles_to_disk(tile_objs, dir_name=TILES_DIR):
+    print('>>>write_tiles_to_disk...')
+
+    for tile_obj in tile_objs:
+        filename = tile_obj['filename']
+        img = tile_obj['data']
+        img.save(dir_name+filename, "JPEG")
+
+    return 1
+
+
+def get_tile_objs_from_image(file_full_path, img_name, crop_holes):
+    # cv2 sln
+    # img = cv2.imread(file_full_path)
+    # img_width = img.shape[1]
+    # img_height = img.shape[0]
+
+    # PIL sln
+    img = Image.open(file_full_path)
+    img_width = img.size[0]
+    img_height = img.size[1]
+
+    if img_width == 8192:
+        tiles = crop_holes[0]
+    elif img_width == 4096:
+        tiles = crop_holes[1]
+    else:
+        print('img size nor 8192 neither 4096, stopped.')
+        exit()
+
+    img_name_witout_ext = os.path.splitext(img_name)[0]
+    tile_objs = []
+    for index, bbox in enumerate(tiles):
+        x, y, w, h = bbox[0], bbox[1], bbox[2], bbox[3]
+        #tile = img[x:x + w, y:y + h]
+        tile = img.crop((x, y, x+w, y+h))
+        filename = '{0}__{1}__{2}__{3}__{4}.jpg'.format(
+            img_name_witout_ext, x, y, w, h
+        )  # alternate '__'.join(x,y,w,h)
+        tile_obj = {'filename': filename, 'data': tile}
+
+        tile_objs += [tile_obj]
+
+    # print(tile_objs)
+
+    return tile_objs  # [{'filename':filename,'data':data},{},{}]
+
+
+def get_tile_objs_from_test(test_dir, crop_holes):
+    print('>>>get_tile_objs_from_test...')
+
+    # mem may boom in this for
+    max_step = TILE_OBJS_MAXSTEP
+    step = 0
+    pbar = tqdm(total=max_step, position=0, leave=True)
+
+    cnt = 0
+    tile_objs = []
+    filenames = os.listdir(test_dir)
+    total = len(filenames)
+    for filename in filenames:
+        if filename.endswith(".jpg"):
+            file_full_path = os.path.join(test_dir, filename)
+
+
+            # img_labels = df[df.name == filename]
+            tile_objs_part = get_tile_objs_from_image(file_full_path, filename, crop_holes)
+            # print(tile_objs_part)
+
+            tile_objs += tile_objs_part
+
+            # break pieces to prevent mem BOOM
+            pbar.update(1)
+            step += 1
+            cnt += 1
+            # print('Counting objs in tile_objs: ' + str(cnt))
+            if step == max_step:
+                print('>>>max_step=' + str(max_step) + ' reached! ')
+                write_tiles_to_disk(tile_objs, TILES_DIR)
+                print('>>>finished cnt:' + str(cnt) + '/' + str(total))
+                tile_objs = []
+                step = 0
+                pbar.reset()
+
+    # the last
+    write_tiles_to_disk(tile_objs, TILES_DIR)
+    print('>>>finished cnt:' + str(cnt) + '/' + str(total))
+    pbar.close()
+
+    # print(tile_objs)
+
+    return tile_objs
+
+
+def get_crops_from_test():
     pass
 
 
@@ -128,18 +223,29 @@ def make_submit():
 
 
 def main():
-    # train_dir   =   "ds/v4/big"
-    train_dir = "ds/_origin/tile_round1_train_20201231/train_imgs/"
-    annotation_json_path = "ds/v4/train_annos.json"
+    train_dir = TRAIN_DIR
+    test_dir = TEST_DIR
+    # train_dir = "ds/_origin/tile_round1_train_20201231/train_imgs/"
+    annotation_json_path = JSON_PATH
+
+    tile_size = TILE_SIZE
+    lap_size = LAP_SIZE
+
+    # img_size = [8192, 6000]
+    # bboxes = get_tiles(img_size,crop_size,lap_size)
+    # img = cv2.imread(r'ds\v4\big\197_2_t20201119084923676_CAM3.jpg')
+    # preview_tiles(img,bboxes)
 
 
+    crop_holes = {}
+    crop_holes[0] = get_tiles([8192, 6000], tile_size, lap_size)
+    crop_holes[1] = get_tiles([4096, 3500], tile_size, lap_size)
+    get_tile_objs_from_test(test_dir, crop_holes)
+
+    exit()
     ask_stale_imgs(CROPS_DIR)
-
-
-
-
-    crop_objs = get_crop_objs_from_train(train_dir, annotation_json_path)
-    # write_crops_to_disk(crop_objs, CROPS_DIR) # full crop objs will make mem BOOM!
+    # write to disk each 100 imgs, to prevent men boom
+    get_crop_objs_from_train(train_dir, annotation_json_path)
 
 
 if __name__ == "__main__":

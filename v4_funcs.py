@@ -417,3 +417,79 @@ def ask_stale_imgs(dir_name = CROPS_DIR):
             if item.endswith(".jpg"):
                 os.remove(os.path.join(dir_name, item))
 
+
+
+def check_unique_vals(json_file):
+    df = pd.read_json(json_file)
+    print(df['image_width'].unique())
+
+def get_tiles(img_size,crop_size,lap_size):
+    img_w,img_h=img_size[1],img_size[0]
+    step = crop_size - lap_size
+    cnt_x =  int(img_w / step)
+    cnt_y =  int(img_h / step)
+
+
+    # loop y ,  complete
+    bboxes=[]
+    for cur_y in range(cnt_y):
+        base_y = cur_y * step
+        crop_size_x, crop_size_y = crop_size, crop_size
+        for cur_x in range(cnt_x):
+            base_x = cur_x * step
+            x,y,w,h = base_x,base_y,crop_size_x,crop_size_y
+            bboxes += [[x,y,w,h]]
+
+        # last col , not complete
+        base_x = (cur_x + 1) * step
+        if (base_x + crop_size_x) >= img_w:
+            crop_size_x = img_w - base_x
+            if crop_size_x != 0:
+                x,y,w,h = base_x,base_y,crop_size_x,crop_size_y
+                bboxes += [[x, y, w, h]]
+
+
+
+    # last row, not complete
+    base_y = (cur_y + 1) * step
+    crop_size_x, crop_size_y = crop_size, crop_size
+    if (base_y + crop_size_y) >= img_h:
+        crop_size_y = img_h - base_y
+        if crop_size_y != 0:
+
+            for cur_x in range(cnt_x):
+                base_x = cur_x * step
+                x, y, w, h = base_x, base_y, crop_size_x, crop_size_y
+                bboxes += [[x, y, w, h]]
+
+
+            # the Bottom right corner, not complete
+            base_x = (cur_x + 1) * step
+            if (base_x + crop_size_x) >= img_w:
+                crop_size_x = img_w - base_x
+                if crop_size_x != 0:
+                    x, y, w, h = base_x, base_y, crop_size_x, crop_size_y
+                    bboxes += [[x, y, w, h]]
+
+    return  bboxes
+
+
+def preview_tiles(img,bboxes):
+
+    img_w,img_h = img.shape[1],img.shape[0]
+    print(bboxes)
+    for bbox in bboxes:
+        color = random_color()
+        color = WHITE
+        x,y,w,h=bbox[0],bbox[1],bbox[2],bbox[3]
+        cv2.rectangle(img, (x, y, w,h), color, 1)
+    see(img)
+
+
+
+
+
+
+
+
+

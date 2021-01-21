@@ -43,19 +43,37 @@ PINK = [189, 0, 255]
 PURPLE = [255, 0, 205]
 RGB_RED=[255, 0, 0]
 
-CROP_SIZE = 512
+
+
+# to rm
 OUT_DIR = 'ds/step1/output/'
 
-# same as yolo train dir
-CROPS_DIR = 'ds/v4/images/train/'
+JSON_PATH = "ds/v4/train_annos.json"
+
+TRAIN_DIR = "ds/v4/big"
+TEST_DIR = "ds/v4/big_test"
+# TEST_DIR = "ds/_origin/tile_round1_testA_20201231/testA_imgs/"
+
 
 # same as yolo label dir
 TXT_DIR = 'ds/v4/labels/train/'
 
 
+CROP_SIZE = 512
+TILE_SIZE = 512
+LAP_SIZE=20
+
+# same as yolo small train dir
+# CROPS_DIR = 'ds/v4/images/train/'
+CROPS_DIR = 'ds/v4/images/train_test1/'
 
 
+# same as tolo small test dir
+TILES_DIR= 'ds/v4/images/test/'
 
+# prevent mem boom
+CROP_OBJS_MAXSTEP=100
+TILE_OBJS_MAXSTEP = 20
 
 
 
