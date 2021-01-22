@@ -196,7 +196,7 @@ def draw_img(df, dir_name, filename):
         cv2.putText(img_resized, flaw_name(category), (x, y - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
 
-    cv2.imwrite(OUT_DIR + row['name'], img_resized)
+    # cv2.imwrite(OUT_DIR + row['name'], img_resized)
 
     # cv2.imshow(get_cutted_filename(filename) + '_' + str(i), img_resized)
     # cv2.waitKey(0)
@@ -230,7 +230,7 @@ def hit():
 
 
 
-
+# stale
 def get_region(img):
     ## Threshold in grayscale
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -486,10 +486,304 @@ def preview_tiles(img,bboxes):
     see(img)
 
 
+def get_final_json(tile_json_path,final_json_path):
+    json_obj=[]
+    df = pd.read_json(tile_json_path)
+    for index, row in df.iterrows():
+
+
+        category = int(row['category_id'])
+        ele = row['image_id'].split("__")
+
+
+        filename = ele[0] + '.jpg'
+
+        crop_x,crop_y,crop_w,crop_h = row['bbox']
+        base_x,base_y=int(ele[1]),int(ele[2])
+        x,y,r,b = base_x + crop_x, base_y+crop_y,base_x + crop_x +crop_w, base_y + crop_y + crop_h
+        score = row['score']
+
+
+        flaw_obj = {
+                "name": filename,
+                "category": category,
+                "bbox": [
+                    round(x, 2),
+                    round(y, 2),
+                    round(r, 2),
+                    round(b, 2)
+                ],
+                "score": score
+        }
+
+        # print(flaw_obj)
+
+        json_obj += [flaw_obj]
+
+    print(json_obj)
+
+    # exit()
+
+    with open(final_json_path, 'w') as fp:
+        print('>>> wrighting finnal json')
+        json.dump(json_obj, fp, indent=4, ensure_ascii=False)
+
+    # print(df)
 
 
 
 
+def make_txt_from_crops(dir_crops,dir_txt,val_txt_dir = VAL_TXT_DIR):
+    print('[]make_txt_from_crops')
+    # clean dir
+    for item in os.listdir(dir_txt):
+        if item.endswith(".txt"):
+            os.remove(os.path.join(dir_txt, item))
+
+    txt_dict = {}
+    for filename in os.listdir(dir_crops):
+        if filename.endswith(".jpg"):
+            txt_filename = os.path.splitext(filename)[0]
+            ele = txt_filename.split('__')
+            txt_line = [ele[5],ele[6],ele[7],ele[8],ele[9]]
+            txt_dict[txt_filename] = txt_line
+
+    print('>>>writing txt to '+dir_txt)
+    cnt=0
+    for filename,line in txt_dict.items():
+        with open(dir_txt+filename + ".txt", "w") as text_file:
+            text_file.write("{} {} {} {} {}\n".format(line[0],line[1],line[2],line[3],line[4]))
+        cnt+=1
+    print('txt files cnt:'+str(cnt))
+    print('making done,check  ' + dir_txt)
+
+
+    print('>>>writing txt to ' +val_txt_dir)
+    cnt = 0
+    for filename, line in txt_dict.items():
+        with open(val_txt_dir + filename + ".txt", "w") as text_file:
+            text_file.write("{} {} {} {} {}\n".format(line[0], line[1], line[2], line[3], line[4]))
+        cnt += 1
+    print('txt files cnt:' + str(cnt))
+    print('making done,check  '+val_txt_dir)
+
+
+
+
+
+def get_crop_objs_from_image(file_full_path, img_name,img_labels, crop_size=CROP_SIZE):
+    # cv2 sln
+    # img = cv2.imread(file_full_path)
+    # img_width = img.shape[1]
+    # img_height = img.shape[0]
+
+    # PIL sln
+    img = Image.open(file_full_path)
+    img_width = img.size[0]
+    img_height = img.size[1]
+
+
+    crop_objs = []
+    for index, row in img_labels.iterrows():
+        label_index = row['category']
+        bbox = row['bbox']
+
+        cx = (bbox[2] + bbox[0]) / 2
+        cy = (bbox[3] + bbox[1]) / 2
+        base_x = int(cx - crop_size / 2)
+        base_y = int(cy - crop_size / 2)
+
+        crop_size_x, crop_size_y = crop_size, crop_size
+        if base_x < 0: base_x = 0
+        if base_y < 0: base_y = 0
+        if base_x + crop_size > img_width: crop_size_x = img_width - base_x
+        if base_y + crop_size > img_height: crop_size_y = img_height - base_y
+
+        # cv2 sln
+        # crop = img[base_y:base_y + crop_size_y, base_x:base_x + crop_size_x]
+
+        # PIL sln
+        crop = img.crop((base_x, base_y, base_x + crop_size_x, base_y + crop_size_y))
+
+        crop_bbox = [bbox[0] - base_x + 1, bbox[1] - base_y + 1, bbox[2] - base_x + 1, bbox[3] - base_y + 1]
+        # crop_bbox=[bbox[0]-base_x,bbox[1]-base_y,bbox[2]-base_x,bbox[3]-base_y]
+
+        img_name_witout_ext = os.path.splitext(row['name'])[0]
+        x, y, w, h = convert([crop_size_x, crop_size_y], crop_bbox)
+        filename = '{0}__{1}__{2}__{3}__{4}__{5}__{6}__{7}__{8}__{9}.jpg'.format(
+            img_name_witout_ext, base_x, base_y, crop_size_x, crop_size_y, label_index, x, y, w, h
+        )  # alternate '__'.join(x,y,w,h)
+
+        # draw some graph
+        # x = int(crop_bbox[0])
+        # y = int(crop_bbox[1])
+        # w = int(crop_bbox[2] - crop_bbox[0])
+        # h = int(crop_bbox[3] - crop_bbox[1])
+        #
+        # draw_cross(crop, (x, y))
+        # color = flaw(label_index)['color']
+        # cv2.rectangle(crop, (x, y, w, h), color, 1)
+        # cv2.rectangle(crop, (0, 0,
+        #                     crop_size_x, crop_size_y), color, 10)
+        # text = "{},x{},y{},w{},h{}".format(flaw(label_index)['name'], x, y, w, h)
+        # cv2.putText(crop, text, (x - 40, y - 10),cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+
+        # build flaw_crop
+        crop_obj = {'filename': filename, 'data': crop}
+
+        crop_objs += [crop_obj]
+
+    return crop_objs  # [{'filename':filename,'data':data},{},{}]
+
+
+def get_crop_objs_from_train(train_dir, annotation_json_path):
+    print('>>>get_crop_objs_from_train...')
+    df = pd.read_json(annotation_json_path)
+
+    # mem may boom in this for
+
+    max_step = 100
+    step = 0
+    pbar = tqdm(total=max_step, position=0, leave=True)
+
+    filenames= os.listdir(train_dir)
+    cnt = 0
+    crop_objs = []
+    total = len(filenames)
+    for filename in filenames:
+        if filename.endswith(".jpg"):
+            file_full_path = os.path.join(train_dir, filename)
+
+            img_labels = df[df.name == filename]
+            crop_objs_part = get_crop_objs_from_image(file_full_path,filename, img_labels)
+
+            crop_objs += crop_objs_part
+
+            # break pieces to prevent mem BOOM
+            pbar.update(1)
+            step += 1
+            cnt += 1
+            # print('Counting objs in crop_objs: ' + str(cnt))
+            if step == max_step:
+                print('>>>max_step=' + str(max_step) + ' reached! ')
+                write_crops_to_disk(crop_objs, CROPS_DIR)
+                print('>>>finished cnt:' + str(cnt) + '/' + str(total))
+                crop_objs = []
+                step = 0
+                pbar.reset()
+
+    # the last
+    write_crops_to_disk(crop_objs, CROPS_DIR)
+    print('>>>finished cnt:' + str(cnt) + '/' + str(total))
+    pbar.close()
+
+    return crop_objs
+
+
+def write_crops_to_disk(crop_objs, dir_name=CROPS_DIR):
+    print('>>>write_crop_objs_to_disk...')
+
+    for crop_obj in crop_objs:
+        filename = crop_obj['filename']
+        img = crop_obj['data']
+        # cv2.imwrite(dir_name + filename, img)
+        img.save(dir_name + filename, "JPEG")
+
+    return 1
+
+# rm
+def write_tiles_to_disk(tile_objs, dir_name=TILES_DIR):
+    print('>>>write_tiles_to_disk...')
+
+    for tile_obj in tile_objs:
+        filename = tile_obj['filename']
+        img = tile_obj['data']
+        img.save(dir_name+filename, "JPEG")
+
+    return 1
+
+
+def get_tile_objs_from_image(file_full_path, img_name, crop_holes):
+    # cv2 sln
+    # img = cv2.imread(file_full_path)
+    # img_width = img.shape[1]
+    # img_height = img.shape[0]
+
+    # PIL sln
+    img = Image.open(file_full_path)
+    img_width = img.size[0]
+    img_height = img.size[1]
+
+    if img_width == 8192:
+        tiles = crop_holes[0]
+    elif img_width == 4096:
+        tiles = crop_holes[1]
+    else:
+        print('img size nor 8192 neither 4096, stopped.')
+        exit()
+
+    img_name_witout_ext = os.path.splitext(img_name)[0]
+    tile_objs = []
+    for index, bbox in enumerate(tiles):
+        x, y, w, h = bbox[0], bbox[1], bbox[2], bbox[3]
+        #tile = img[x:x + w, y:y + h]
+        tile = img.crop((x, y, x+w, y+h))
+        filename = '{0}__{1}__{2}__{3}__{4}.jpg'.format(
+            img_name_witout_ext, x, y, w, h
+        )  # alternate '__'.join(x,y,w,h)
+        tile_obj = {'filename': filename, 'data': tile}
+
+        tile_objs += [tile_obj]
+
+    # print(tile_objs)
+
+    return tile_objs  # [{'filename':filename,'data':data},{},{}]
+
+
+def get_tile_objs_from_test(test_dir, crop_holes):
+    print('>>>get_tile_objs_from_test...')
+
+    # mem may boom in this for
+    max_step = TILE_OBJS_MAXSTEP
+    step = 0
+    pbar = tqdm(total=max_step, position=0, leave=True)
+
+    cnt = 0
+    tile_objs = []
+    filenames = os.listdir(test_dir)
+    total = len(filenames)
+    for filename in filenames:
+        if filename.endswith(".jpg"):
+            file_full_path = os.path.join(test_dir, filename)
+
+
+            # img_labels = df[df.name == filename]
+            tile_objs_part = get_tile_objs_from_image(file_full_path, filename, crop_holes)
+            # print(tile_objs_part)
+
+            tile_objs += tile_objs_part
+
+            # break pieces to prevent mem BOOM
+            pbar.update(1)
+            step += 1
+            cnt += 1
+            # print('Counting objs in tile_objs: ' + str(cnt))
+            if step == max_step:
+                print('>>>max_step=' + str(max_step) + ' reached! ')
+                write_crops_to_disk(tile_objs, TILES_DIR)
+                print('>>>finished cnt:' + str(cnt) + '/' + str(total))
+                tile_objs = []
+                step = 0
+                pbar.reset()
+
+    # the last
+    write_crops_to_disk(tile_objs, TILES_DIR)
+    print('>>>finished cnt:' + str(cnt) + '/' + str(total))
+    pbar.close()
+
+    # print(tile_objs)
+
+    return tile_objs
 
 
 

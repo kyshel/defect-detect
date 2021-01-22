@@ -1,6 +1,27 @@
 from v4 import *
 
+# step 6 get result
+tile_json_path = r'yolov5-master\runs\test\exp13\kaggle_1000_predictions.json'
+final_json_path = 'ds/v4/final.json'
+get_final_json(tile_json_path, final_json_path)
+exit()
 
+
+
+
+
+
+
+exit()
+# img_size = [8192, 6000]
+# bboxes = get_tiles(img_size,crop_size,lap_size)
+# img = cv2.imread(r'ds\v4\big\197_2_t20201119084923676_CAM3.jpg')
+# preview_tiles(img,bboxes)
+
+# print(1)
+
+
+exit()
 # [
 #     {
 #         "name": "226_46_t20201125133518273_CAM1.jpg",

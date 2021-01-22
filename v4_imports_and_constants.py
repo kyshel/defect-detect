@@ -21,10 +21,42 @@ from time import sleep
 from tqdm import tqdm
 
 
+JSON_PATH = "ds/v4/train_annos.json"
+TRAIN_DIR = "ds/v4/big_train/"
 
+TEST_DIR = "ds/v4/big_test/"
 
+# same as yolo label dir
+TXT_DIR = 'ds/v4/labels/train/'
+VAL_TXT_DIR = "ds/v4/labels/val/"
 
+CROP_SIZE = 640
+TILE_SIZE = 640
+LAP_SIZE = 20
 
+# same as yolo small train dir
+CROPS_DIR = 'ds/v4/images/train/'
+# same as tolo small test dir
+TILES_DIR= 'ds/v4/images/test/'
+
+# prevent mem boom
+CROP_OBJS_MAXSTEP= 100
+TILE_OBJS_MAXSTEP = 20
+
+# to rm
+# OUT_DIR = 'ds/step1/output/'
+
+logging.basicConfig(
+    level=logging.INFO,
+    # format='%(asctime)s %(name)-1s %(levelname)-3s %(message)s',
+    # format='%(levelname)-3s %(message)s',
+    format='%(levelname)-3s [%(filename)s:%(lineno)d] %(message)s',
+    datefmt='%y-%m-%d %H:%M:%S',
+    handlers=[
+        # logging.FileHandler(FILENAME_LOGGING),
+        logging.StreamHandler()
+    ]
+)
 
 pd.set_option('display.max_columns', 10)
 pd.set_option('display.width', 300)
@@ -45,46 +77,3 @@ RGB_RED=[255, 0, 0]
 
 
 
-# to rm
-OUT_DIR = 'ds/step1/output/'
-
-JSON_PATH = "ds/v4/train_annos.json"
-
-TRAIN_DIR = "ds/v4/big"
-TEST_DIR = "ds/v4/big_test"
-# TEST_DIR = "ds/_origin/tile_round1_testA_20201231/testA_imgs/"
-
-
-# same as yolo label dir
-TXT_DIR = 'ds/v4/labels/train/'
-
-
-CROP_SIZE = 512
-TILE_SIZE = 512
-LAP_SIZE=20
-
-# same as yolo small train dir
-# CROPS_DIR = 'ds/v4/images/train/'
-CROPS_DIR = 'ds/v4/images/train_test1/'
-
-
-# same as tolo small test dir
-TILES_DIR= 'ds/v4/images/test/'
-
-# prevent mem boom
-CROP_OBJS_MAXSTEP=100
-TILE_OBJS_MAXSTEP = 20
-
-
-
-logging.basicConfig(
-    level=logging.INFO,
-    # format='%(asctime)s %(name)-1s %(levelname)-3s %(message)s',
-    # format='%(levelname)-3s %(message)s',
-    format='%(levelname)-3s [%(filename)s:%(lineno)d] %(message)s',
-    datefmt='%y-%m-%d %H:%M:%S',
-    handlers=[
-        # logging.FileHandler(FILENAME_LOGGING),
-        logging.StreamHandler()
-    ]
-)
