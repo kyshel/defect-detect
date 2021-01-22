@@ -236,6 +236,8 @@ def main():
     # img = cv2.imread(r'ds\v4\big\197_2_t20201119084923676_CAM3.jpg')
     # preview_tiles(img,bboxes)
 
+    # print(1)
+
 
     crop_holes = {}
     crop_holes[0] = get_tiles([8192, 6000], tile_size, lap_size)
