@@ -10,10 +10,15 @@ def work_flow():
     print('crop > txt > train > tile > test > final')
 
 def main():
+
     # step 1 cut flaw crops
-    ask_stale_imgs(CROPS_DIR)
-    get_crop_objs_from_train(TRAIN_DIR, JSON_PATH) # write to disk each 100 imgs, to prevent men boom
+    get_crop_objs_from_train2(TRAIN_DIR, JSON_PATH)
     exit()
+
+    # step 1 cut flaw crops
+    # ask_stale_imgs(CROPS_DIR)
+    # get_crop_objs_from_train(TRAIN_DIR, JSON_PATH)
+    # exit()
 
     # step 2 make txt labels for crops
     make_txt_from_crops(CROPS_DIR, TXT_DIR)
