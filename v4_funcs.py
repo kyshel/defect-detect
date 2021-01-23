@@ -665,17 +665,19 @@ def get_crop_objs_from_train(train_dir, annotation_json_path):
             cnt += 1
             # print('Counting objs in crop_objs: ' + str(cnt))
             if step == max_step:
+                pbar.reset()
                 print('>>>max_step=' + str(max_step) + ' reached! ')
                 write_crops_to_disk(crop_objs, CROPS_DIR)
                 print('>>>finished cnt:' + str(cnt) + '/' + str(total))
                 crop_objs = []
                 step = 0
-                pbar.reset()
+
 
     # the last
     write_crops_to_disk(crop_objs, CROPS_DIR)
-    print('>>>finished cnt:' + str(cnt) + '/' + str(total))
     pbar.close()
+    print('>>>finished cnt:' + str(cnt) + '/' + str(total))
+
 
     return crop_objs
 

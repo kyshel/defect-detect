@@ -27,7 +27,8 @@ def main():
     # step 3 train
     print('train')
     # local: python train.py --img 640 --batch 2 --epochs 2 --data v4.yaml  --worker 1  --weights kaggle_1000.pt
-    # sky:   python train.py --img 640 --batch 128 --epochs 100  --data v4.yaml --weights kaggle_1000.pt
+    # sky:   ! train.py --img 640 --batch 128 --epochs 100  --data v4_sky.yaml --weights kaggle_1000.pt
+    # sky2:   ! train.py --img 640 --batch 128 --epochs 100  --data v4_sky.yaml --weights kaggle_1000.pt
     exit()
 
     # step 4 cut test big img to tiles
