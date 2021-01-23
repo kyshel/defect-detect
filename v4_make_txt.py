@@ -1,6 +1,57 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from v4_funcs import *
+from v4 import *
+
+# step 2 make txt labels for crops
+make_txt_from_crops(CROPS_DIR, TXT_DIR)
+exit()
+
+
+
+
+
+
+# step 4 cut test big img to tiles
+# ask_stale_imgs(TILES_DIR)
+crop_holes = {
+    0: get_tiles([8192, 6000], TILE_SIZE, LAP_SIZE),
+    1: get_tiles([4096, 3500], TILE_SIZE, LAP_SIZE)
+}
+get_tile_objs_from_test(TEST_DIR, crop_holes)
+exit()
+
+
+
+
+
+
+
+
+# step 1 cut flaw crops
+ask_stale_imgs(CROPS_DIR)
+get_crop_objs_from_train(TRAIN_DIR, JSON_PATH)  # write to disk each 100 imgs, to prevent men boom
+exit()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # make label txt from crops filename

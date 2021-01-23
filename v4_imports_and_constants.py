@@ -21,10 +21,12 @@ from time import sleep
 from tqdm import tqdm
 
 
-JSON_PATH = "ds/v4/train_annos.json"
-TRAIN_DIR = "ds/v4/big_train/"
+JSON_PATH = "ds/v4/train_annos_v2.json"
+#TRAIN_DIR = "ds/v4/big_train/"
+TRAIN_DIR = "ds/_origin/tile_round1_train_20201231/train_imgs"
+#TEST_DIR = "ds/v4/big_test/"
+TEST_DIR = "ds/_origin/tile_round1_testA_20201231/testA_imgs"
 
-TEST_DIR = "ds/v4/big_test/"
 
 # same as yolo label dir
 TXT_DIR = 'ds/v4/labels/train/'

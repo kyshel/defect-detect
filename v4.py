@@ -26,7 +26,7 @@ def main():
     exit()
 
     # step 4 cut test big img to tiles
-    ask_stale_imgs(TILES_DIR)
+    # ask_stale_imgs(TILES_DIR)
     crop_holes = {
         0: get_tiles([8192, 6000], TILE_SIZE, LAP_SIZE),
         1: get_tiles([4096, 3500], TILE_SIZE, LAP_SIZE)
