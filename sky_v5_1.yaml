@@ -1,0 +1,22 @@
+# COCO 2017 dataset http://cocodataset.org - first 128 training images
+# Train command: python train.py --data coco128.yaml
+# Default dataset location is next to /yolov5:
+#   /parent_folder
+#     /coco128
+#     /yolov5
+
+
+# download command/URL (optional)
+download: https://tianchi-competition.oss-cn-hangzhou.aliyuncs.com/531846/tile_round1_train_20201231.zip
+
+# train and val data as 1) directory: path/images/, 2) file: path/images.txt, or 3) list: [path1/images/, path2/images/]
+train: ../tile_round1_train_20201231/train_imgs  # 128 images
+val: ../tile_round1_train_20201231/train_imgs  # 128 images
+# test: ../ds/v5/images/test/ 
+
+
+# number of classes
+nc: 7
+
+# class names
+names: [ '0 background', '1 edge weird', '2 corner weird', '3 white spot', '4 light block', '5 dark block', '6 halo' ]
